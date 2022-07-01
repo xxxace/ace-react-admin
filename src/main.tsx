@@ -34,11 +34,11 @@ class ErrorBoundary extends React.Component<{ children: JSX.Element }, { hasErro
 }
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Provider store={store}>
       <ErrorBoundary>
         <App />
       </ErrorBoundary>
     </Provider>
-  </React.StrictMode>
+  // </React.StrictMode>
 )

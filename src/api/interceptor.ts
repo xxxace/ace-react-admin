@@ -21,6 +21,7 @@ axios.interceptors.request.use(function onFulfilled(config: AxiosRequestConfig) 
 axios.interceptors.response.use(function onFulfilled(response: AxiosResponse) {
     const res = response.data;
 
+    if (!res.code) res.code = response.status;
     if (res.code !== 200) {
         let errorMsg = '响应失败';
 

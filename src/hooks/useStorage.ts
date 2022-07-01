@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-function getStorageItem(key: string) {
+export function getStorageItem(key: string) {
     let item = localStorage.getItem(key);
     if (item) {
         return JSON.parse(item);

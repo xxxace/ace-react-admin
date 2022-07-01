@@ -1,13 +1,15 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { setToken, removeToken } from '@/utils/auth';
-
+import { getStorageItem } from '@/hooks/useStorage';
 interface UserState {
     id: number | string;
     name: string;
     avatar?: string;
 }
 
-const initialState: UserState = {
+export type UserStateToken = UserState & { token: string };
+
+const initialState: UserState = getStorageItem('user-info') || {
     id: 0,
     name: ''
 }
@@ -16,14 +18,17 @@ const userSlice = createSlice({
     name: 'user',
     initialState,
     reducers: {
-        login: (state, action: PayloadAction<UserState & { token: string }>) => {
+        login(state, action: PayloadAction<UserStateToken>) {
             const { id, name, avatar, token } = action.payload;
             state.id = id;
             state.name = name;
             state.avatar = avatar;
+
+            localStorage.setItem('user-info', JSON.stringify({ id, name, avatar }))
             setToken(token);
         },
         logout: (state) => {
+            console.log(state,'xxxx')
             state = Object.assign({}, initialState);
             removeToken();
             window.location.reload();

@@ -1,7 +1,9 @@
 import { configureStore, getDefaultMiddleware } from '@reduxjs/toolkit';
+import userReducer from './modules/user';
 import { userApiSlice } from './thunk/user';
 const store = configureStore({
     reducer: {
+        user: userReducer,
         [userApiSlice.reducerPath]: userApiSlice.reducer
     },
     middleware: getDefaultMiddleware => {

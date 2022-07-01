@@ -5,4 +5,4 @@ export interface LoginData {
     password: string
 }
 
-export const login = (data: LoginData) => axios.post('/auth/local', data);
+export const login = <T,R>(data: LoginData) => axios.post<T,R>('/auth/local', data);

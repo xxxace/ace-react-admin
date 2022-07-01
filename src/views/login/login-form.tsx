@@ -1,9 +1,9 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import style from './style/index.module.less';
-import { Form, Input, Button, Checkbox } from '@arco-design/web-react';
+import { Form, Input, Button, Checkbox, Notification } from '@arco-design/web-react';
 import useStorage from '@/hooks/useStorage';
-import { useLoginMutation } from '@/store/thunk/user';
+import { useLocation, useNavigate } from "react-router-dom";
 import * as User from '@/api/user';
 import { login } from '@/store/modules/user';
 import { useDispatch } from 'react-redux';
@@ -20,16 +20,27 @@ const rules = {
 
 function LoginForm() {
     const [form] = Form.useForm();
+    const location = useLocation();
     const dispatch = useDispatch();
+    const navigator = useNavigate();
     const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMesg] = useState('');
     const [rememberPassword, setRememberPassword] = useState(false);
     const [loginParams, setLoginParmas] = useStorage('login-params', { username: 'admin' });
 
     const handleSubmit = useCallback(() => {
-        form.validate().then((values) => {
+        form.validate().then(async (values) => {
             if (!rememberPassword) delete values.password;
-            onLogin(values);
+            const success = await onLogin(values);
+            setLoginParmas(() => ({ ...values, rememberPassword }));
+            success && Notification.success({
+                title: '欢迎回来',
+                content: '应无所住，而生其心。',
+            })
+            const from: Location = (location.state as any)?.from || {};
+            setTimeout(() => {
+                navigator(from.pathname || '/workplace', { replace: true });
+            }, 1500);
         });
     }, [rememberPassword]);
 
@@ -37,28 +48,38 @@ function LoginForm() {
         setRememberPassword(() => checked);
     }, []);
 
-    const onLogin = useCallback(async (data: loginParams) => {
+    useEffect(() => {
+        console.log('location', location)
+    }, [])
 
-        try {
-            setIsLoading(true);
-            const res = await User.login({
-                identifier: data.username,
-                password: data.password
-            });
+    const onLogin = useCallback((data: loginParams) => {
+        return new Promise(async resolve => {
+            try {
+                setIsLoading(true);
+                const { jwt: token, user } = await User.login<any, { jwt: string, user: any }>({
+                    identifier: data.username,
+                    password: data.password
+                });
 
-            // console.log(res)
-            // if(!res.error)
-            // dispatch(login({
-            //     id: data.username,
-            //     password: data.password
-            // }))
+                dispatch(login({
+                    id: user.id,
+                    name: user.username,
+                    avatar: user.avatar,
+                    token: token
+                }));
 
-            // setLoginParmas(() => ({ ...values, rememberPassword }));
-        } catch (e) {
-            setErrorMesg(e as string)
-        } finally {
-            setIsLoading(false);
-        }
+                resolve(true);
+            } catch (e: any) {
+                if (e.response.data.error) {
+                    setErrorMesg(e.response.data.error.message);
+                } else {
+                    setErrorMesg(e.message);
+                }
+                resolve(false);
+            } finally {
+                setIsLoading(false);
+            }
+        })
     }, [])
 
     useEffect(() => {
