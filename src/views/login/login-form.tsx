@@ -1,12 +1,11 @@
-
-import { useState, useEffect, useCallback } from 'react';
-import style from './style/index.module.less';
-import { Form, Input, Button, Checkbox, Notification } from '@arco-design/web-react';
-import useStorage from '@/hooks/useStorage';
-import { useLocation, useNavigate } from "react-router-dom";
 import * as User from '@/api/user';
-import { login } from '@/store/modules/user';
 import { useDispatch } from 'react-redux';
+import useStorage from '@/hooks/useStorage';
+import { login } from '@/store/modules/user';
+import style from './style/index.module.less';
+import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from "react-router-dom";
+import { Form, Input, Button, Checkbox, Notification } from '@arco-design/web-react';
 
 interface loginParams {
     username: string;
@@ -23,21 +22,24 @@ function LoginForm() {
     const location = useLocation();
     const dispatch = useDispatch();
     const navigator = useNavigate();
-    const [isLoading, setIsLoading] = useState(false);
     const [errorMsg, setErrorMesg] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const [rememberPassword, setRememberPassword] = useState(false);
     const [loginParams, setLoginParmas] = useStorage('login-params', { username: 'admin' });
 
     const handleSubmit = useCallback(() => {
         form.validate().then(async (values) => {
             if (!rememberPassword) delete values.password;
+
             const success = await onLogin(values);
+            const from: Location = (location.state as any)?.from || {};
+
             setLoginParmas(() => ({ ...values, rememberPassword }));
             success && Notification.success({
                 title: '欢迎回来',
                 content: '应无所住，而生其心。',
-            })
-            const from: Location = (location.state as any)?.from || {};
+            });
+
             setTimeout(() => {
                 navigator(from.pathname || '/workplace', { replace: true });
             }, 1500);
@@ -47,10 +49,6 @@ function LoginForm() {
     const handleRememberPassword = useCallback((checked: boolean) => {
         setRememberPassword(() => checked);
     }, []);
-
-    useEffect(() => {
-        console.log('location', location)
-    }, [])
 
     const onLogin = useCallback((data: loginParams) => {
         return new Promise(async resolve => {

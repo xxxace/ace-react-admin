@@ -1,15 +1,15 @@
+import { routes, RouteRaw } from '@/router';
 import { Menu } from '@arco-design/web-react';
-import { IconApps, IconBug, IconBulb } from '@arco-design/web-react/icon';
+import { IconApps } from '@arco-design/web-react/icon';
 import { useCallback, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { routes, RouteRaw } from '@/router';
 
 function AceMenu() {
-    const navigator = useNavigate();
     const location = useLocation();
-    const [matchesMap, setMatchesMap] = useState<{ [key: string]: string[] }>({});
+    const navigator = useNavigate();
     const [openKey, setOpenKey] = useState<string[]>([]);
     const [selectKey, setSelectKey] = useState<string[]>([]);
+    const [matchesMap, setMatchesMap] = useState<{ [key: string]: string[] }>({});
 
     useEffect(() => {
         let matches: string[] = [];
@@ -57,7 +57,7 @@ function AceMenu() {
             })
         }
         return travel(routes);
-    }, [routes])
+    }, [routes]);
 
     const clickSubMenu = useCallback((key: string, openKeys: string[], keyPath: string[]) => {
         if (openKey.includes(key)) {
@@ -65,7 +65,8 @@ function AceMenu() {
         } else {
             setOpenKey(() => [key]);
         }
-    }, [openKey])
+    }, [openKey]);
+
     return (
         <div style={{ height: '100%' }}>
             <Menu

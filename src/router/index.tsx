@@ -1,26 +1,10 @@
-import { Routes, Route, BrowserRouter, Navigate, useLocation } from "react-router-dom";
+import PubSub from 'pubsub-js';
+import NProgress from 'nprogress';
 import { isLogin } from "@/utils/auth";
 import Layout from "@/components/Layout";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import PubSub from 'pubsub-js';
 import loadable from '@loadable/component';
-
-function load(fn: any) {
-    const Component = loadable(fn);
-    Component.preload = fn.requireAsync || fn;
-    return Component;
-}
-
-const Login = load(() => import('@/views/login'));
-
-function AuthWrapper({ children }: { children: JSX.Element; }) {
-    let location = useLocation();
-    if (!isLogin()) {
-        return <Navigate to="/login" state={{ from: location }} replace={true} />
-    }
-    PubSub.publish('router', location);
-    return children
-}
+import { useCallback, useMemo } from "react";
+import { Routes, Route, BrowserRouter, Navigate, useLocation } from "react-router-dom";
 
 export type RouteMeta = {
     title?: string;
@@ -81,6 +65,31 @@ export const routes: RouteRaw[] = [{
         }
     }]
 }];
+
+function load(fn: any) {
+    const Component = loadable(fn);
+    Component.preload = fn.requireAsync || fn;
+    const load = Component.load;
+    console.log(load)
+    Component.load = ()=>{
+        console.log('load')
+        
+        load()
+    }
+    return Component;
+}
+
+const Login = load(() => import('@/views/login'));
+
+function AuthWrapper({ children }: { children: JSX.Element; }) {
+    let location = useLocation();
+    if (!isLogin()) {
+        return <Navigate to="/login" state={{ from: location }} replace={true} />
+    }
+    NProgress.start();
+    PubSub.publish('router', location);
+    return children
+}
 
 export function getFlatRoutes(routes: RouteRaw[], isImport: boolean = true) {
     function travel(_routes: RouteRaw[]) {

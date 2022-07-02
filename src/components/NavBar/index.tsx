@@ -1,14 +1,14 @@
-import style from './style/index.module.less';
 import PubSub from 'pubsub-js';
-import { useCallback, useEffect, useState } from 'react';
 import { RouteRaw } from '@/router';
 import { Tag } from '@arco-design/web-react';
+import style from './style/index.module.less';
 import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useState } from 'react';
 
 function NavBar() {
-    const [current, setCurrent] = useState<RouteRaw>();
-    const [list, setList] = useState<RouteRaw[]>([]);
     const navigator = useNavigate();
+    const [list, setList] = useState<RouteRaw[]>([]);
+    const [current, setCurrent] = useState<RouteRaw>();
 
     useEffect(() => {
         PubSub.subscribe('router', (message, data) => {
@@ -52,7 +52,7 @@ function NavBar() {
             });
             return [...newList];
         });
-    }, [])
+    }, []);
 
     return (
         <div className={style['ace-nav-bar']}>
@@ -79,7 +79,7 @@ function NavBar() {
                     })
                 }
             </div>
-        </div >
+        </div>
     )
 }
 

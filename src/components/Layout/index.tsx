@@ -1,23 +1,24 @@
-import { Outlet, useLocation } from 'react-router-dom';
-import style from "./style/index.module.less";
-import Header from '../Header';
 import Menu from '../Menu';
+import Header from '../Header';
 import Footer from '../Footer';
 import NavBar from '../NavBar';
 import { useEffect, useMemo } from 'react';
-import { routes, getFlatRoutes,RouteMeta } from '@/router/index';
+import style from "./style/index.module.less";
+import { Outlet, useLocation } from 'react-router-dom';
+import { routes, getFlatRoutes, RouteMeta } from '@/router/index';
 
 function Layout() {
     let location = useLocation();
     let flatRoutes = useMemo(() => getFlatRoutes(routes, false), []);
-    
+
     useEffect(() => {
-        if(!location.state){
-            const current = flatRoutes.find(r=>r.path === location.pathname);
+        if (!location.state) {
+            const current = flatRoutes.find(r => r.path === location.pathname);
             location.state = current;
+        } else {
+            document.title = (location.state as RouteMeta).meta.title;
         }
 
-        document.title = (location.state as RouteMeta).meta.title;
         PubSub.publish('router', location);
     }, [location]);
 

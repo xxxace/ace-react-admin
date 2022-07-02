@@ -28,7 +28,6 @@ const userSlice = createSlice({
             setToken(token);
         },
         logout: (state) => {
-            console.log(state,'xxxx')
             state = Object.assign({}, initialState);
             removeToken();
             window.location.reload();

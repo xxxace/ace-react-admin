@@ -1,19 +1,17 @@
-import style from './style/index.module.less';
-// import PubSub from 'pubsub-js'
-// import { useEffect } from 'react';
-import { Avatar, Dropdown, Menu, Modal } from '@arco-design/web-react';
-import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { ReduxState } from '@/store';
-import { IconUser, IconExport, IconSettings } from '@arco-design/web-react/icon';
-import { logout } from '@/store/modules/user';
 import { useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import style from './style/index.module.less';
+import { logout } from '@/store/modules/user';
+import { TypedUseSelectorHook, useSelector } from 'react-redux';
+import { Avatar, Dropdown, Menu, Modal } from '@arco-design/web-react';
+import { IconUser, IconExport, IconSettings } from '@arco-design/web-react/icon';
+
 export const useAppSelector: TypedUseSelectorHook<ReduxState> = useSelector;
 
 function Header(props: { className: string | undefined; }) {
-    const user = useAppSelector(state => state.user);
     const dispatch = useDispatch();
-    // const navigator = useNavigate();
+    const user = useAppSelector(state => state.user);
+
     const dropList = (
         <Menu>
             <Menu.Item key='user'>
@@ -29,10 +27,7 @@ function Header(props: { className: string | undefined; }) {
                     title: '登出确认',
                     content: '是否要登出当前账户？',
                     style: { top: '-300px' },
-                    onOk: () => {
-                        dispatch(logout());
-                        // setTimeout(() => navigator("/login", { replace: true }), 500)
-                    }
+                    onOk: () => { dispatch(logout()) }
                 })
             }}>
                 <IconExport style={{ marginRight: 8 }} />
