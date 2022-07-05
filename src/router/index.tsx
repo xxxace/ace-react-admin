@@ -5,6 +5,7 @@ import Layout from "@/components/Layout";
 import loadable from '@loadable/component';
 import { useCallback, useMemo } from "react";
 import { Routes, Route, BrowserRouter, Navigate, useLocation } from "react-router-dom";
+import { KeepAliveProvider, withKeepAlive } from '@/KeepAlive';
 
 export type RouteMeta = {
     title?: string;
@@ -20,6 +21,13 @@ export type RouteRaw = {
     children?: RouteRaw[];
     meta?: RouteMeta
 }
+function load(fn: any) {
+    const Component = loadable(fn);
+    Component.preload = fn.requireAsync || fn;
+    return Component;
+}
+// const Workplace = load(() => import('../views/dashboard/workplace/index.tsx'));
+// const KeepAliveWorkplace = withKeepAlive(Workplace as any, { cacheId: 'KeepAliveWorkplace' })
 
 export const routes: RouteRaw[] = [{
     name: 'dashboard',
@@ -28,6 +36,14 @@ export const routes: RouteRaw[] = [{
     meta: {
         title: '仪表盘'
     },
+    // children: [{
+    //     name: 'workplace',
+    //     path: '/workplace',
+    //     component: <KeepAliveWorkplace/>,
+    //     meta: {
+    //         title: '工作站'
+    //     }
+    // }],
     children: [{
         name: 'workplace',
         path: '/workplace',
@@ -35,8 +51,17 @@ export const routes: RouteRaw[] = [{
         meta: {
             title: '工作站'
         }
-    }]
-}, {
+    }],
+    // children: [{
+    //     name: 'workplace',
+    //     path: '/workplace',
+    //     component: <Workplace />,
+    //     meta: {
+    //         title: '工作站'
+    //     }
+    // }]
+},
+{
     name: 'form',
     path: '/form',
     meta: {
@@ -64,20 +89,10 @@ export const routes: RouteRaw[] = [{
             title: '列表1'
         }
     }]
-}];
-
-function load(fn: any) {
-    const Component = loadable(fn);
-    Component.preload = fn.requireAsync || fn;
-    const load = Component.load;
-    console.log(load)
-    Component.load = ()=>{
-        console.log('load')
-        
-        load()
-    }
-    return Component;
 }
+];
+
+
 
 const Login = load(() => import('@/views/login'));
 
@@ -86,7 +101,7 @@ function AuthWrapper({ children }: { children: JSX.Element; }) {
     if (!isLogin()) {
         return <Navigate to="/login" state={{ from: location }} replace={true} />
     }
-    NProgress.start();
+    // NProgress.start();
     PubSub.publish('router', location);
     return children
 }
@@ -103,7 +118,8 @@ export function getFlatRoutes(routes: RouteRaw[], isImport: boolean = true) {
                     try {
                         const componentName = r.component;
                         const Component = load(() => import(`../views/${componentName}.tsx`));
-                        r.component = <Component />
+                        const KeepAlive = withKeepAlive(Component as any, { cacheId: route.path })
+                        r.component = <KeepAlive/>
                     } catch (e) {
                         console.log(e)
                     }
@@ -124,6 +140,8 @@ function Router() {
     const renderRoutes = useCallback(() => {
         function travel(routes: RouteRaw[]) {
             return routes.map((route) => {
+                // const KeepAlive = withKeepAlive(<div>111</div> as any, { cacheId: route.path })
+                // const KeepAlive = withKeepAlive(route.component as any,{cacheId:route.path})
                 return (
                     <Route key={route.name} path={route.path} element={<AuthWrapper>{route.component}</AuthWrapper>} />
                 )
@@ -135,14 +153,17 @@ function Router() {
 
     return (
         <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Layout />}>
-                    <Route index element={<Navigate to='/workplace' replace={true} />}></Route>
-                    {renderRoutes()}
-                </Route>
-                <Route path="/login" element={<Login />}></Route>
-                <Route path="*" element={<div>error</div>}></Route>
-            </Routes>
+            <KeepAliveProvider>
+                <Routes>
+                    <Route path="/" element={<Layout />}>
+                        <Route index element={<Navigate to='/workplace' replace={true} />}></Route>
+                        {/* <Route path="/workplace" element={<KeepAliveWorkplace />}></Route> */}
+                        {renderRoutes()}
+                    </Route>
+                    <Route path="/login" element={<Login />}></Route>
+                    <Route path="*" element={<div>error</div>}></Route>
+                </Routes>
+            </KeepAliveProvider>
         </BrowserRouter>
     )
 }

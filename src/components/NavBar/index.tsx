@@ -3,13 +3,14 @@ import { RouteRaw } from '@/router';
 import { Tag } from '@arco-design/web-react';
 import style from './style/index.module.less';
 import { useNavigate } from 'react-router-dom';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useContext, useEffect, useState } from 'react';
+import { KeepAliveContext } from '@/KeepAlive';
 
 function NavBar() {
     const navigator = useNavigate();
     const [list, setList] = useState<RouteRaw[]>([]);
     const [current, setCurrent] = useState<RouteRaw>();
-
+    const { destroy } = useContext(KeepAliveContext);
     useEffect(() => {
         PubSub.subscribe('router', (message, data) => {
             const curr = data.state;
@@ -49,6 +50,7 @@ function NavBar() {
                 } else {
                     navigator('/workplace');
                 }
+                destroy(route.path);
             });
             return [...newList];
         });

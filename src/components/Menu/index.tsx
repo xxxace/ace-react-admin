@@ -52,7 +52,11 @@ function AceMenu() {
                         {travel(route.children)}
                     </Menu.SubMenu>
                 } else {
-                    return <Menu.Item key={route.name} onClick={() => navigator(route.path, { state: route })}>{route.meta?.title}</Menu.Item>
+                    return <Menu.Item key={route.name} onClick={() => {
+                        const self = Object.assign({},route)
+                        delete self.component
+                        navigator(route.path, { state: self })
+                    }}>{route.meta?.title}</Menu.Item>
                 }
             })
         }
