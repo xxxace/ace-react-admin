@@ -29,11 +29,10 @@ function LoginForm() {
 
     const handleSubmit = useCallback(() => {
         form.validate().then(async (values) => {
-            if (!rememberPassword) delete values.password;
-
             const success = await onLogin(values);
             const from: Location = (location.state as any)?.from || {};
-
+            
+            if (!rememberPassword) delete values.password;
             setLoginParmas(() => ({ ...values, rememberPassword }));
             success && Notification.success({
                 title: '欢迎回来',
@@ -68,7 +67,7 @@ function LoginForm() {
 
                 resolve(true);
             } catch (e: any) {
-                if (e.response.data.error) {
+                if (e.response.data && e.response.data.error) {
                     setErrorMesg(e.response.data.error.message);
                 } else {
                     setErrorMesg(e.message);
@@ -87,8 +86,8 @@ function LoginForm() {
 
     return (
         <div className={style["login-form"]}>
-            <div className={style["title"]}>登录 Ace admin vue</div>
-            <div className={style["sub-title"]}>登录 Ace admin vue</div>
+            <div className={style["title"]}>登录 Ace admin react</div>
+            <div className={style["sub-title"]}>登录 Ace admin react</div>
             <div v-if="errorMsg" className={style["error-msg"]}>{errorMsg}</div>
 
             <Form form={form} style={{ width: '100%' }} layout="vertical" onSubmit={handleSubmit}>

@@ -6,9 +6,11 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "mock-setup": "cd ./mock && yarn install",
     "mock-on": "cd ./mock && npm run develop"
   },
   "dependencies": {
+    "@arco-design/web-react": "^2.40.2",
     "@loadable/component": "^5.13.2",
     "@reduxjs/toolkit": "^1.8.2",
     "axios": "^0.27.2",
